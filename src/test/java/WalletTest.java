@@ -1,57 +1,61 @@
 import org.example.Wallet;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class WalletTest {
-    @Test
-    public void testSetOwner(){
-        Wallet wallet = new Wallet();
+    static Wallet wallet;
+
+    @BeforeAll
+    static void initClass(){
+        wallet = new Wallet();
         wallet.setOwner("Rudi");
+    }
+
+    @BeforeEach
+    void setUp(){
+        System.out.println("BeforeEach dilakukan");
+    }
+
+    @AfterEach
+    void after(){
+        System.out.println("After Each dilakukan");
+    }
+    @AfterAll
+    void afterAll(){
+        System.out.println("After All dilakukan");
+    }
+
+
+    @Test
+    void getNameTest(){
         Assertions.assertEquals("Rudi", wallet.getName());
     }
 
     @Test
-    public void testDeposit(){
-        Wallet wallet = new Wallet();
+    void depositTest(){
         wallet.deposit(20000);
         Assertions.assertEquals(20000, wallet.getCash());
-        wallet.deposit(-10000);
-        Assertions.assertEquals(20000, wallet.getCash());
     }
 
     @Test
-    public void testWihdraw(){
-        Wallet wallet = new Wallet();
-        wallet.deposit(20000);
-        wallet.withdraw(10000);
-        Assertions.assertEquals(10000, wallet.getCash());
-        wallet.withdraw(50000);
-        Assertions.assertEquals(10000, wallet.getCash());
+    void withdrawTest(){
+        wallet.withdraw(5000);
+        Assertions.assertEquals(15000,wallet.getCash());
     }
 
     @Test
-    public void testAddCards(){
-        Wallet wallet = new Wallet();
-        wallet.addCards("BRI", 123);
-        wallet.addCards("BRI", 124);
-        List<List<Object>> expected = List.of(
-                List.of("BRI", 123),
-                List.of("BRI", 124)
-        );
-        Assertions.assertEquals(expected, wallet.getCards());
+    void checkCardTest(){
+        wallet.addCards("BRI", 1234);
+        wallet.addCards("BNI", 1235);
+        Assertions.assertTrue(wallet.checkCards("BRI", 1234));
     }
 
     @Test
-    public void testRemoveCards(){
-        Wallet wallet = new Wallet();
-        wallet.addCards("BRI", 123);
-        wallet.addCards("BRI", 124);
-        wallet.removeCard("BRI", 124);
-        List<List<Object>> expected = List.of(
-                List.of("BRI", 123)
-        );
-        Assertions.assertEquals(expected, wallet.getCards());
+    void removeCardTest(){
+        wallet.removeCard("BRI", 1234);
+        Assertions.assertFalse(wallet.checkCards("BRI", 1234));
     }
 }

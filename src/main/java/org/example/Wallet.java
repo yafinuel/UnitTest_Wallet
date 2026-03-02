@@ -51,8 +51,14 @@ public class Wallet {
         return name;
     }
 
-    public ArrayList<ArrayList<Object>> getCards() {
-        return cards;
+    public Boolean checkCards(String bank, int accountNumber) {
+        for (ArrayList<Object> card : cards) {
+            // Cek apakah bank sama DAN account number sama
+            if (card.get(0).equals(bank) && card.get(1).equals(accountNumber)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public int getCash() {
