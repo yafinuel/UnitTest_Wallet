@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Wallet {
-    private String name;
+    private Owner owner;
     private ArrayList<ArrayList<Object>> cards = new ArrayList<>();
     private int cash;
 
@@ -26,9 +26,9 @@ public class Wallet {
         return "Berhasil, saldo anda sekarang adalah " + this.cash;
     }
 
-    public String setOwner(String name){
-        this.name = name;
-        return "nama berhasil di set" + this.name;
+    public String setOwner(Owner owner){
+        this.owner = owner;
+        return "Berhasil menambah owner " + owner.getName() ;
     }
 
     public String addCards(String bank, int accountNumber){
@@ -45,10 +45,6 @@ public class Wallet {
             return "Kartu berhasil dihapus";
         }
         return "Kartu tidak ditemukan";
-    }
-
-    public String getName() {
-        return name;
     }
 
     public Boolean checkCards(String bank, int accountNumber) {

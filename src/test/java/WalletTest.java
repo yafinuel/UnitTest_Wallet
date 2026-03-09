@@ -1,8 +1,9 @@
+import org.example.Owner;
 import org.example.Wallet;
 import org.junit.jupiter.api.*;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class WalletTest {
@@ -10,13 +11,14 @@ public class WalletTest {
 
     @BeforeAll
     static void initClass(){
-        wallet = new Wallet();
-        wallet.setOwner("Rudi");
+        System.out.println("Before all dilakukan");
     }
 
     @BeforeEach
     void setUp(){
-        System.out.println("BeforeEach dilakukan");
+        wallet = new Wallet();
+        Owner owner = new Owner(1, "Rudi", "rudi@gmail.com");
+        System.out.println(wallet.setOwner(owner));
     }
 
     @AfterEach
@@ -28,34 +30,48 @@ public class WalletTest {
         System.out.println("After All dilakukan");
     }
 
-
-    @Test
-    void getNameTest(){
-        Assertions.assertEquals("Rudi", wallet.getName());
+    @ParameterizedTest
+    @ValueSource(ints = {1000, 5000, 100000, 0})
+    @DisplayName("Test Deposit Berbagai Nominal")
+    void depositMultipleAmounts(int amount) {
+        wallet.deposit(amount);
+        Assertions.assertEquals(amount, wallet.getCash());
     }
 
-    @Test
-    void depositTest(){
-        wallet.deposit(20000);
-        Assertions.assertEquals(20000, wallet.getCash());
+    @ParameterizedTest
+    @CsvSource({
+            "5000, 10000, 5000",   // Tarik 5rb dari 10rb -> sisa 5rb
+            "10000, 10000, 0",     // Tarik semua -> sisa 0
+            "0, 5000, 5000"        // Tarik 0 -> sisa tetap
+    })
+    @DisplayName("Test Withdraw Berhasil")
+    void withdrawSuccessTest(int withdrawAmount, int initialDeposit, int expectedBalance) {
+        wallet.deposit(initialDeposit);
+        wallet.withdraw(withdrawAmount);
+        Assertions.assertEquals(expectedBalance, wallet.getCash());
     }
 
-    @Test
-    void withdrawTest(){
-        wallet.withdraw(5000);
-        Assertions.assertEquals(15000,wallet.getCash());
+    @ParameterizedTest
+    @CsvSource({
+            "15000, 10000", // Tarik 15rb padahal saldo cuma 10rb
+            "1, 0"          // Tarik 1 padahal saldo 0
+    })
+    @DisplayName("Test Withdraw Saldo Tidak Cukup")
+    void withdrawInsufficientBalance(int withdrawAmount, int initialDeposit) {
+        wallet.deposit(initialDeposit);
+        String result = wallet.withdraw(withdrawAmount);
+        Assertions.assertEquals("Saldo anda tidak mencukupi", result);
     }
 
-    @Test
-    void checkCardTest(){
-        wallet.addCards("BRI", 1234);
-        wallet.addCards("BNI", 1235);
-        Assertions.assertTrue(wallet.checkCards("BRI", 1234));
-    }
-
-    @Test
-    void removeCardTest(){
-        wallet.removeCard("BRI", 1234);
-        Assertions.assertFalse(wallet.checkCards("BRI", 1234));
+    @ParameterizedTest
+    @CsvSource({
+            "BRI, 1234",
+            "BNI, 5566",
+            "BCA, 9999"
+    })
+    @DisplayName("Test Tambah dan Cek Kartu")
+    void addAndCheckCardsTest(String bank, int accNumber) {
+        wallet.addCards(bank, accNumber);
+        Assertions.assertTrue(wallet.checkCards(bank, accNumber));
     }
 }
